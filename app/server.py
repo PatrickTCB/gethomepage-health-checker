@@ -47,7 +47,7 @@ class MyServer(BaseHTTPRequestHandler):
         if endpoint.method == "POST":
             content_length = endpoint.headers['Content-Length']
             length = int(content_length) if content_length else 0
-            ctype, pdict = parse_header(self.headers['content-type'])
+            ctype, pdict = parse_header(self.headers['Content-Type'])
             postvars = ""
             if ctype == 'multipart/form-data':
                 postvars = parse_multipart(self.rfile, pdict)
@@ -80,7 +80,7 @@ class MyServer(BaseHTTPRequestHandler):
                 r = web.get(endpoint.postParams["host"], endpoint.postParams["path"], True)
                 if r == False:
                     self.send_response(403)
-                    self.send_header("Content-type", "application/json")
+                    self.send_header("Content-Type", "application/json")
                     self.end_headers()
                     responseDict["host"] = endpoint.postParams["host"]
                     responseDict["path"] = endpoint.postParams["path"]
@@ -93,7 +93,7 @@ class MyServer(BaseHTTPRequestHandler):
                     else:
                         self.send_response(int(r.status_code))
                         responseDict["success"] = False
-                    self.send_header("Content-type", "application/json")
+                    self.send_header("Content-Type", "application/json")
                     self.end_headers()
                     responseDict["host"] = endpoint.postParams["host"]
                     responseDict["path"] = endpoint.postParams["path"]
@@ -108,7 +108,7 @@ class MyServer(BaseHTTPRequestHandler):
                 else:
                     self.send_response(int(r.status_code))
                     responseDict["success"] = False
-                self.send_header("Content-type", "application/json")
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 responseDict["success"] = True
                 responseDict["host"] = endpoint.postParams["host"]
@@ -124,7 +124,7 @@ class MyServer(BaseHTTPRequestHandler):
                 else:
                     self.send_response(int(r.status_code))
                     responseDict["success"] = False
-                self.send_header("Content-type", "application/json")
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 responseDict["success"] = True
                 responseDict["host"] = endpoint.postParams["host"]
@@ -134,7 +134,7 @@ class MyServer(BaseHTTPRequestHandler):
                 print("{}".format(json.dumps(responseDict)))
         else:
             self.send_response(501)
-            self.send_header("Content-type", "application/json")
+            self.send_header("Content-Type", "application/json")
             self.end_headers()
             print("This request coludn't be understood\n{}".format(json.dumps(endpoint.toDict())))
             # Time to build the json response. Our basic plan here is to build a nice little dictionary, then in the last step
