@@ -14,7 +14,7 @@ Here's an example creating Authentik widget that tells you if the service is onl
         type: customapi
         url: https://health-check.example.com/
         requestBody:
-            host: id.coffey.app
+            host: authentik.example.com
             path: /-/health/live/
             method: get
         headers:
