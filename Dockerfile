@@ -8,6 +8,8 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 ENV LC_ALL="en_US.UTF-8"
 ENV export LC_CTYPE="en_US.UTF-8"
 ENV FQDN="example.com"
+ENV CFClientID = "clientID"
+ENV CFClientSecret = "clientSecret"
 RUN dpkg-reconfigure --frontend=noninteractive locales
 
 COPY ./app/ /webserver
