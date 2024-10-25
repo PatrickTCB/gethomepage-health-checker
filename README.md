@@ -89,3 +89,23 @@ X-Content-Type-Options: nosniff
 ```
 
 There's a lot more you can do with mappings. 
+
+Lastly, here's an example of a resource protected by [Cloudflare Access service token](https://developers.cloudflare.com/cloudflare-one/identity/service-tokens/).
+
+```
+- CF Access App:
+        href: https://app.example.com/
+        description: My extremely cool web app
+        widget:
+            type: customapi
+            url: https://health-check.example.com/
+            method: POST
+            headers:
+                content-type: application/json
+            requestBody:
+              host: app.example.com
+              path: /health-check
+              method: get
+              cloudflareAccess: true
+            refreshInterval: 60000 # optional - in milliseconds, defaults to 10s. Set to 2hr
+```
