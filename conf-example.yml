@@ -1,0 +1,3 @@
+custom_headers:
+  waf-bot-bypass: "yes please"
+custom_header_domains: ['https://secure.example.app']

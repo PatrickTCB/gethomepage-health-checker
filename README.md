@@ -4,6 +4,12 @@ This is meant to be a companion to [gethomepage](https://gethomepage.dev/latest/
 
 The idea is to allow you to create a custom widget for any arbitrary service. Especially useful for services where a prebuilt widget isn't there. 
 
+# Configuration
+
+In case your gethomepage instance is checking public services which might require specific headers for bot manager whitelisting, configure these in `conf.yml`.
+
+# Examples
+
 Here's an example creating Authentik widget that tells you if the service is online. 
 
 ```
