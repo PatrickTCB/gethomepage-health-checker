@@ -7,27 +7,34 @@ from pathlib import Path
 from typing import Annotated
 from fastapi import FastAPI, Request, Form, Header
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from lib import web
+
+class HealthCheck(BaseModel):
+    host: str
+    path: str
+    method: str
+    status: int | None = None
 
 app = FastAPI()
 
 @app.post("/", status_code=200)
-async def root(host: Annotated[str, Form()], path: Annotated[str, Form()], method: Annotated[str, Form()] = "get", status: Annotated[int | None, Form()] = None, etag: Annotated[str, Header()] = "", if_none_match: Annotated[str, Header()] = ""):
+async def root(hc: HealthCheck, etag: Annotated[str, Header()] = "", if_none_match: Annotated[str, Header()] = ""):
     conf = yaml.safe_load(Path('conf.yml').read_text())
     successStatusCodes = [200, 201, 202]
-    if status != None:
-        successStatusCodes.append(status)
-    if method == "get":
-        r = web.get(host=host, path=path, conf=conf)
-    elif method == "options":
-        r = web.options(host=host, path=path, conf=conf)
-    elif method == "head":
-        r = web.head(host=host, path=path, conf=conf)
+    if hc.status != None:
+        successStatusCodes.append(hc.status)
+    if hc.method == "get":
+        r = web.get(host=hc.host, path=hc.path, conf=conf)
+    elif hc.method == "options":
+        r = web.options(host=hc.host, path=hc.path, conf=conf)
+    elif hc.method == "head":
+        r = web.head(host=hc.host, path=hc.path, conf=conf)
     else:
         # Early exit because methods like "patch" or "post" aren't currently
         # supported by this script.
-        errorMessage = "Specificed method '{}' is not currently supported".format(method)
-        requestInfo = {"host": host, "path": path}
+        errorMessage = "Specificed method '{}' is not currently supported".format(hc.method)
+        requestInfo = {"host": hc.host, "path": hc.path}
         responseDict = {"requestInfo": requestInfo}
         responseDict["status"] = 401
         responseDict["success"] = False
@@ -36,7 +43,7 @@ async def root(host: Annotated[str, Form()], path: Annotated[str, Form()], metho
         headers = {"Content-Type": "application/json", "ETag": "{}".format(newEtag)}
         return JSONResponse(content=responseDict, headers=headers, status_code=401)
     if r.status_code not in successStatusCodes:
-        requestInfo = {"host": host, "path": path}
+        requestInfo = {"host": hc.host, "path": hc.path}
         responseDict = {"requestInfo": requestInfo}
         responseDict["status"] = r.status_code
         responseDict["success"] = False
@@ -45,7 +52,7 @@ async def root(host: Annotated[str, Form()], path: Annotated[str, Form()], metho
         headers = {"Content-Type": "application/json", "ETag": "{}".format(newEtag)}
         return JSONResponse(content=responseDict, headers=headers, status_code=401)
     else:
-        requestInfo = {"host": host, "path": path}
+        requestInfo = {"host": hc.host, "path": hc.path}
         responseDict = {"requestInfo": requestInfo}
         responseDict["success"] = True
         responseDict["status"] = r.status_code
@@ -53,7 +60,7 @@ async def root(host: Annotated[str, Form()], path: Annotated[str, Form()], metho
         newEtag = hashlib.md5(str(json.dumps(responseDict)).encode('utf-8')).hexdigest()
         if etag == newEtag or if_none_match == newEtag:
             headers = {"Content-Type": "application/json", "ETag": "{}".format(newEtag)}
-            return JSONResponse(content=b'', headers=headers, status_code=status.HTTP_304_NOT_MODIFIED)
+            return JSONResponse(content=b'', headers=headers, status_code=304)
         else:
             headers = {"Content-Type": "application/json", "ETag": "{}".format(newEtag)}
             return JSONResponse(content=responseDict, headers=headers)
