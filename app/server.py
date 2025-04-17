@@ -5,14 +5,14 @@ import hashlib
 from typing import Annotated
 from pathlib import Path
 from typing import Annotated
-from fastapi import FastAPI, Form, Header
+from fastapi import FastAPI, Request, Form, Header
 from fastapi.responses import JSONResponse
 from lib import web
 
 app = FastAPI()
 
 @app.post("/", status_code=200)
-def root(method: Annotated[str, Form()], host: Annotated[str, Form()], path: Annotated[str, Form()], status: Annotated[int | None, Form()] = None, etag: Annotated[str, Header()] = "", if_none_match: Annotated[str, Header()] = ""):
+async def root(host: Annotated[str, Form()], path: Annotated[str, Form()], method: Annotated[str, Form()] = "get", status: Annotated[int | None, Form()] = None, etag: Annotated[str, Header()] = "", if_none_match: Annotated[str, Header()] = ""):
     conf = yaml.safe_load(Path('conf.yml').read_text())
     successStatusCodes = [200, 201, 202]
     if status != None:
@@ -34,7 +34,7 @@ def root(method: Annotated[str, Form()], host: Annotated[str, Form()], path: Ann
         responseDict["message"] = errorMessage
         newEtag = hashlib.md5(str(json.dumps(responseDict)).encode('utf-8')).hexdigest()
         headers = {"Content-Type": "application/json", "ETag": "{}".format(newEtag)}
-        return JSONResponse(content=responseDict, headers=headers, status=401)
+        return JSONResponse(content=responseDict, headers=headers, status_code=401)
     if r.status_code not in successStatusCodes:
         requestInfo = {"host": host, "path": path}
         responseDict = {"requestInfo": requestInfo}
@@ -43,7 +43,7 @@ def root(method: Annotated[str, Form()], host: Annotated[str, Form()], path: Ann
         responseDict["message"] = "Your mistake"
         newEtag = hashlib.md5(str(json.dumps(responseDict)).encode('utf-8')).hexdigest()
         headers = {"Content-Type": "application/json", "ETag": "{}".format(newEtag)}
-        return JSONResponse(content=responseDict, headers=headers, status=401)
+        return JSONResponse(content=responseDict, headers=headers, status_code=401)
     else:
         requestInfo = {"host": host, "path": path}
         responseDict = {"requestInfo": requestInfo}
