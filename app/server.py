@@ -9,42 +9,6 @@ from fastapi import FastAPI, Form, Header
 from fastapi.responses import JSONResponse
 from lib import web
 
-class APIEndPoint:
-    def toDict(self):
-        dv = {}
-        dv["method"] = self.method
-        dv["getParams"] = self.getParams
-        dv["postParams"] = self.postParams
-        dv["server"] = self.server
-        dv["path"] = self.path
-        dv["body"] = self.body
-        dv["headers"] = self.headers
-        return dv
-    method = ""
-    getParams = {}
-    postParams = {}
-    headers = {}
-    path = ""
-    server = ""
-    body = ""
-    
-def getParamsFromPath(path) :
-    getParamsDict = {}
-    if "?" in path:
-        pathSplit = path.split("?", 1)
-        print(str(pathSplit))
-        if "&" in pathSplit[1]:
-            paramsRaw = pathSplit[1].split("&")
-            for pRaw in paramsRaw:
-                pSplit = pRaw.split("=")
-                if len(pSplit) == 2:
-                    getParamsDict[str(pSplit[0])] = str(pSplit[1])
-        elif "=" in pathSplit[1]:
-            pSplit = pathSplit[1].split("=")
-            if len(pSplit) == 2:
-                getParamsDict[str(pSplit[0])] = str(pSplit[1])
-    return getParamsDict
-
 app = FastAPI()
 
 @app.post("/", status_code=200)
